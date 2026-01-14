@@ -1,8 +1,9 @@
-// Replace your calendar module with this version.
-// It returns [] if env vars are missing OR the API fails OR no events are found.
+// src/services/googleCalendar.ts
 
-const CALENDAR_ID = (import.meta.env.VITE_GOOGLE_CALENDAR_ID || "").trim();
-const API_KEY = (import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY || "").trim();
+const CALENDAR_ID = import.meta.env.VITE_GOOGLE_CALENDAR_ID as string | undefined;
+const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY as string | undefined;
+
+const TZ = "America/New_York";
 
 export interface CalendarEvent {
   day: string;
@@ -12,13 +13,33 @@ export interface CalendarEvent {
   summary?: string;
 }
 
+type GoogleCalendarItem = {
+  status?: string;
+  summary?: string;
+  start?: { dateTime?: string; date?: string; timeZone?: string };
+  end?: { dateTime?: string; date?: string; timeZone?: string };
+};
+
+function isAllDay(item: GoogleCalendarItem): boolean {
+  return !!item.start?.date && !item.start?.dateTime;
+}
+
+/**
+ * If Google gives a date-only string (YYYY-MM-DD), creating Date(date) can shift the day
+ * depending on timezone. To stabilize weekday/date display, interpret date-only as midday.
+ */
+function normalizeForDisplay(dateString: string): string {
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(dateString);
+  return isDateOnly ? `${dateString}T12:00:00` : dateString;
+}
+
 function formatTime(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-    timeZone: "America/New_York",
+    timeZone: TZ,
   });
 }
 
@@ -28,7 +49,7 @@ function formatDate(dateString: string): string {
     month: "numeric",
     day: "numeric",
     year: "numeric",
-    timeZone: "America/New_York",
+    timeZone: TZ,
   });
 }
 
@@ -36,73 +57,93 @@ function getDayOfWeek(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-US", {
     weekday: "long",
-    timeZone: "America/New_York",
+    timeZone: TZ,
   });
 }
 
 export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
-  // If env vars aren't set, return nothing (and log why)
-  if (!API_KEY || !CALENDAR_ID) {
-    console.warn(
-      "Calendar fetch skipped: missing VITE_GOOGLE_CALENDAR_API_KEY and/or VITE_GOOGLE_CALENDAR_ID"
+  // If not configured, populate nothing
+  if (!CALENDAR_ID || !API_KEY) {
+    console.error(
+      "[Calendar] Missing env vars. Set VITE_GOOGLE_CALENDAR_ID and VITE_GOOGLE_CALENDAR_API_KEY."
     );
     return [];
   }
 
   try {
     const now = new Date();
-    const weekFromNow = new Date();
+    const weekFromNow = new Date(now);
     weekFromNow.setDate(now.getDate() + 7);
 
     const timeMin = now.toISOString();
     const timeMax = weekFromNow.toISOString();
 
-    const url =
-      `https://www.googleapis.com/calendar/v3/calendars/` +
-      `${encodeURIComponent(CALENDAR_ID)}/events` +
-      `?key=${encodeURIComponent(API_KEY)}` +
-      `&timeMin=${encodeURIComponent(timeMin)}` +
-      `&timeMax=${encodeURIComponent(timeMax)}` +
-      `&singleEvents=true&orderBy=startTime&maxResults=50`;
+    const params = new URLSearchParams({
+      key: API_KEY,
+      timeMin,
+      timeMax,
+      singleEvents: "true",
+      orderBy: "startTime",
+      maxResults: "50",
+      timeZone: TZ,
+      fields: "items(status,summary,start(dateTime,date),end(dateTime,date))",
+    });
 
-    const response = await fetch(url);
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+      CALENDAR_ID
+    )}/events?${params.toString()}`;
+
+    const response = await fetch(url, { method: "GET" });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = `API error: ${response.status} ${response.statusText}`;
+      const text = await response.text();
+      let message = text;
 
       try {
-        const errorData = JSON.parse(errorText);
-        if (errorData?.error?.message) errorMessage = errorData.error.message;
+        const json = JSON.parse(text);
+        message = json?.error?.message || text;
       } catch {
-        // ignore parse errors
+        // ignore
       }
 
-      console.error("Google Calendar API Error:", errorMessage);
+      console.error(
+        "[Calendar] Google Calendar API failed:",
+        response.status,
+        response.statusText
+      );
+      console.error("[Calendar] Error message:", message);
       return [];
     }
 
-    const data = await response.json();
+    const data: { items?: GoogleCalendarItem[] } = await response.json();
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (items.length === 0) return [];
 
-    if (!data.items || data.items.length === 0) {
-      console.warn("No calendar events found.");
-      return [];
-    }
+    const events: CalendarEvent[] = items
+      .filter((item) => item.status !== "cancelled")
+      .map((item) => {
+        const allDay = isAllDay(item);
 
-    return data.items.map((item: any) => {
-      const startDateTime = item.start.dateTime || item.start.date;
-      const endDateTime = item.end.dateTime || item.end.date;
+        const rawStart = item.start?.dateTime || item.start?.date;
+        const rawEnd = item.end?.dateTime || item.end?.date;
+        if (!rawStart || !rawEnd) return null;
 
-      return {
-        day: getDayOfWeek(startDateTime),
-        date: formatDate(startDateTime),
-        start: formatTime(startDateTime),
-        end: formatTime(endDateTime),
-        summary: item.summary,
-      };
-    });
+        const startForDisplay = normalizeForDisplay(rawStart);
+        const endForDisplay = normalizeForDisplay(rawEnd);
+
+        return {
+          day: getDayOfWeek(startForDisplay),
+          date: formatDate(startForDisplay),
+          start: allDay ? "All Day" : formatTime(startForDisplay),
+          end: allDay ? "" : formatTime(endForDisplay),
+          summary: item.summary,
+        } as CalendarEvent;
+      })
+      .filter(Boolean) as CalendarEvent[];
+
+    return events;
   } catch (error) {
-    console.error("Error fetching calendar events:", error);
+    console.error("[Calendar] Error fetching calendar events:", error);
     return [];
   }
 }

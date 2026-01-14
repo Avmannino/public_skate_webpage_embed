@@ -1,3 +1,6 @@
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import logo from "../assets/wingslogo.png";
 import familyIcon from "../assets/familyicon.png";
 import allAgesIcon from "../assets/agesicon.png";
@@ -42,22 +45,85 @@ export default function App() {
     { url: galleryImage4, alt: "Skating lessons" },
   ];
 
+  // Track breakpoints in JS so we can (a) scroll correctly and (b) remount schedule when layout changes.
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(min-width: 1024px)").matches
+      : false
+  );
+
+  const [isUnder1000, setIsUnder1000] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 1000px)").matches
+      : false
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mqDesktop = window.matchMedia("(min-width: 1024px)");
+    const mq1000 = window.matchMedia("(max-width: 1000px)");
+
+    const onDesktopChange = () => setIsDesktop(mqDesktop.matches);
+    const on1000Change = () => setIsUnder1000(mq1000.matches);
+
+    // Safari fallback support
+    if (mqDesktop.addEventListener) mqDesktop.addEventListener("change", onDesktopChange);
+    else mqDesktop.addListener(onDesktopChange);
+
+    if (mq1000.addEventListener) mq1000.addEventListener("change", on1000Change);
+    else mq1000.addListener(on1000Change);
+
+    // Initialize
+    onDesktopChange();
+    on1000Change();
+
+    return () => {
+      if (mqDesktop.removeEventListener) mqDesktop.removeEventListener("change", onDesktopChange);
+      else mqDesktop.removeListener(onDesktopChange);
+
+      if (mq1000.removeEventListener) mq1000.removeEventListener("change", on1000Change);
+      else mq1000.removeListener(on1000Change);
+    };
+  }, []);
+
+  // Remount ScheduleTable when the <=1000 layout mode changes
+  const scheduleKey = useMemo(
+    () => (isUnder1000 ? "schedule-under-1000" : "schedule-over-1000"),
+    [isUnder1000]
+  );
+
+  const smoothScrollToEl = (el: HTMLElement, id?: string) => {
+    if (id) {
+      try {
+        window.history.replaceState(null, "", `#${id}`);
+      } catch {
+        // ignore
+      }
+    }
+
+    const offset = 12;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top, behavior: "smooth" });
+    });
+  };
+
   const scrollToId =
     (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
       const el = document.getElementById(id);
       if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      smoothScrollToEl(el, id);
     };
 
-  // Tailwind "lg" = 1024px. Scroll to the right pricing section for the current layout.
   const scrollToPricing = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
     const targetId = isDesktop ? "pricing-desktop" : "pricing-mobile";
     const el = document.getElementById(targetId);
     if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    smoothScrollToEl(el, targetId);
   };
 
   return (
@@ -74,14 +140,14 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-12">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div className="lg:-ml-[30px]">
-              {/* ✅ Center logo + header ONLY on mobile */}
-              <div className="flex flex-col items-center sm:items-start mb-6">
+              {/* Center logo + header for all breakpoints <= ~1000px */}
+              <div className="flex flex-col items-center lg:items-start mb-6">
                 <img
                   src={logo}
                   alt="Wings Arena"
-                  className="w-[80.04px] mt-[-30px] mb-2 ml-0 mr-3 sm:ml-[72px]"
+                  className="w-[80.04px] mt-[-30px] mb-2 ml-0 mr-3 lg:ml-[72px]"
                 />
-                <h1 className="text-4xl lg:text-5xl text-white text-center sm:text-left">
+                <h1 className="text-4xl lg:text-5xl text-white text-center lg:text-left">
                   Public Skate
                 </h1>
               </div>
@@ -100,7 +166,8 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
+              {/* Center buttons for all breakpoints <= ~1000px */}
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                 <a
                   href="#schedule"
                   onClick={scrollToId("schedule")}
@@ -118,118 +185,132 @@ export default function App() {
               </div>
             </div>
 
-            <div className="relative h-64 sm:h-80 lg:h-96 ml-[15px]">
+            <div className="relative h-64 sm:h-80 lg:h-96 ml-[5px]">
               <HeroCarousel images={heroImages} interval={3000} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Info Boxes */}
-      <section className="max-w-[calc(80rem*0.97+200px)] mx-auto px-4 sm:px-6 xl:px-8 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[calc(1.5rem*1.1356)]">
-          <InfoBox
-            iconImage={familyIcon}
-            title="Great for Families"
-            description="Easy outing that works for kids, teens, and parents"
-            iconSize="w-[33.6px] h-[33.6px]"
-            iconOffset="-mt-[3px]"
-          />
-          <InfoBox
-            iconImage={allAgesIcon}
-            title="All Ages Welcome"
-            description="Family-friendly environment for everyone"
-            iconSize="w-[44.35px] h-[44.35px]"
-            iconOffset="-mt-[4px]"
-            textOffset="-mt-[5px]"
-          />
-          <InfoBox
-            icon={Snowflake}
-            title="Quality Ice"
-            description="Professionally maintained ice surface"
-          />
-          <InfoBox
-            icon={Cross}
-            title="Safety First"
-            description="Trained staff and safety equipment available"
-          />
-        </div>
-      </section>
+      {/* Reorder Schedule before Info Boxes ONLY at widths <= 1000px */}
+      <div className="max-[1000px]:flex max-[1000px]:flex-col">
+        {/* Info Boxes */}
+        <section className="max-w-[calc(80rem*0.97+200px)] mx-auto px-4 sm:px-6 xl:px-8 py-12 max-[1000px]:order-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[calc(1.5rem*1.1356)]">
+            <InfoBox
+              iconImage={familyIcon}
+              title="Great for Families"
+              description="A fun outing for kids, teens, and parents"
+              iconSize="w-[33.6px] h-[33.6px]"
+              iconOffset="-mt-[3px]"
+            />
+            <InfoBox
+              iconImage={allAgesIcon}
+              title="All Ages Welcome"
+              description="Family-friendly environment for everyone"
+              iconSize="w-[44.35px] h-[44.35px]"
+              iconOffset="-mt-[4px]"
+              textOffset="-mt-[5px]"
+            />
+            <InfoBox
+              icon={Snowflake}
+              title="Quality Ice"
+              description="Professionally maintained ice surface"
+            />
+            <InfoBox
+              icon={Cross}
+              title="Safety First"
+              description="Trained staff and safety equipment available"
+            />
+          </div>
+        </section>
 
-      {/* Schedule Section */}
-      <section id="schedule" className="bg-[#0f1340] py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
-          <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 sm:gap-8">
-            <div className="lg:col-span-2 lg:-ml-[75px] -mt-[47px] lg:mt-[15px] order-1">
-              <h2 className="text-[1.84125rem] sm:text-3xl mb-6 text-white text-center">
-                This Week's Public Skates
-              </h2>
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6">
-                <ScheduleTable />
+        {/* Schedule Section */}
+        <section
+          id="schedule"
+          className="bg-[#0f1340] py-12 max-[1000px]:order-1"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
+            <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 sm:gap-8">
+              <div className="lg:col-span-2 lg:-ml-[75px] -mt-[47px] lg:mt-[15px] order-1">
+                <h2 className="text-[1.50125rem] sm:text-3xl mb-5 mt-7 text-white text-center">
+                  Upcoming Public Skates
+                </h2>
+                <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 w-full min-w-0 overflow-visible">
+                  <ScheduleTable key={scheduleKey} />
+                </div>
               </div>
-            </div>
 
-            {/* Pricing Section - shows here on mobile, later on desktop */}
-            <div className="order-2 lg:hidden mt-0">
-              <h2
-                id="pricing-mobile"
-                className="text-[2rem] sm:text-[2.15625rem] mb-4 sm:mb-8 text-white text-center mt-[10px] sm:mt-0"
-              >
-                Pricing
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 w-[90%] sm:w-full max-w-[1056px] mx-auto gap-8 sm:gap-12 lg:gap-[72px]">
-                <PriceCard
-                  title="Admission"
-                  price="$14"
-                  description="Per person"
-                  features={[
-                    "Walk-ins welcome",
-                    "Session length varies by date",
-                    "Covers the full public skate session listed",
-                  ]}
-                />
-                <PriceCard
-                  title="Skate Rental"
-                  price="$6"
-                  description="Per person"
-                  features={[
-                    "Hockey or Figure Skates - Youth to Adult",
-                    "Exchange sizes anytime",
-                    "Skate helpers available (limited quantity)",
-                  ]}
-                />
-              </div>
-            </div>
+              {/* Pricing Section - shows here on mobile, later on desktop */}
+              <div className="order-2 lg:hidden mt-0">
+                <h2
+                  id="pricing-mobile"
+                  className="text-[1.7rem] sm:text-[2.15625rem] mb-4 sm:mb-8 text-white text-center mt-[10px] sm:mt-0"
+                >
+                  Pricing
+                </h2>
 
-            <div className="space-y-[23px] sm:space-y-[26px] lg:mt-14 lg:ml-[50px] lg:w-[calc(100%-5px)] mt-[40px] lg:-mt-[25px] w-[85%] mx-auto lg:mx-0 lg:w-[calc(100%-5px)] order-3">
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-3.75">
-                <h3 className="text-white mb-2 text-center lg:text-left">
-                  Skate Rentals
-                </h3>
-                <p className="text-gray-300 text-sm text-center lg:text-left">
-                  Hockey & figure skates in youth and adult sizes
-                </p>
+                {/* Mobile: make both cards equal height by forcing the grid items to stretch */}
+                <div className="-ml-[0px] grid w-fit grid-cols-[160px_160px] gap-x-[12px] items-stretch">
+                  {/* Wrapper stretches to row height; inner card fills wrapper */}
+                  <div className="h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0">
+                    <PriceCard
+                      title="Admission"
+                      price="$14"
+                      description="Per person"
+                      features={["Walk-ins welcome", "Session length varies by date"]}
+                    />
+                  </div>
+
+                  <div className="h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0">
+                    <PriceCard
+                      title="Skate Rental"
+                      price="$6"
+                      description="Per person"
+                      features={[
+                        "Hockey & Figure Skates",
+                        "Youth & Adult Sizes",
+                        "Exchange sizes anytime",
+                      ]}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-6.25">
-                <h3 className="text-white mb-2 text-center lg:text-left">
-                  Spectator Seating
-                </h3>
-                <p className="text-gray-300 text-sm text-center lg:text-left">
-                  Ample space for parents and guests to watch
-                </p>
-              </div>
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-[30px]">
-                <h3 className="text-white mb-2 text-center lg:text-left">
-                  Helmets Recommended
-                </h3>
-                <p className="text-gray-300 text-sm text-center lg:text-left">
-                  Especially for kids and first-time skaters
-                </p>
-              </div>
+
+
+
+
+
+              {/* <div className="space-y-[23px] sm:space-y-[26px] lg:mt-14 lg:ml-[50px] lg:w-[calc(100%-5px)] mt-[40px] lg:-mt-[25px] w-[85%] mx-auto lg:mx-0 lg:w-[calc(100%-5px)] order-3">
+                <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-3.75">
+                  <h3 className="text-white mb-2 text-center lg:text-left">
+                    Skate Rentals
+                  </h3>
+                  <p className="text-gray-300 text-sm text-center lg:text-left">
+                    Hockey & figure skates in youth and adult sizes
+                  </p>
+                </div>
+                <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-6.25">
+                  <h3 className="text-white mb-2 text-center lg:text-left">
+                    Spectator Seating
+                  </h3>
+                  <p className="text-gray-300 text-sm text-center lg:text-left">
+                    Ample space for parents and guests to watch
+                  </p>
+                </div>
+                <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-[30px]">
+                  <h3 className="text-white mb-2 text-center lg:text-left">
+                    Helmets Recommended
+                  </h3>
+                  <p className="text-gray-300 text-sm text-center lg:text-left">
+                    Especially for kids and first-time skaters
+                  </p>
+                </div>
+              </div> */}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Pricing Section - shows here on desktop, hidden on mobile */}
       <section
@@ -247,7 +328,6 @@ export default function App() {
             features={[
               "Walk-ins welcome",
               "Session length varies by date",
-              "Covers the full public skate session listed",
             ]}
           />
           <PriceCard
@@ -255,9 +335,9 @@ export default function App() {
             price="$6"
             description="Per person"
             features={[
-              "Hockey or Figure Skates - Youth to Adult",
+              "Hockey & Figure Skates",
+              "Youth & Adult Sizes",
               "Exchange sizes anytime",
-              "Skate helpers available (limited quantity)",
             ]}
           />
         </div>
@@ -326,9 +406,7 @@ export default function App() {
             className="bg-[#b2dbd7] rounded-lg border border-gray-700 px-4 sm:px-6"
           >
             <AccordionItem value="item-1">
-              <AccordionTrigger>
-                Do I need to bring my own skates?
-              </AccordionTrigger>
+              <AccordionTrigger>Do I need to bring my own skates?</AccordionTrigger>
               <AccordionContent>
                 No, skate rentals are available for a small fee. We have sizes
                 for all ages, from toddlers to adults. However, you're welcome
@@ -336,9 +414,7 @@ export default function App() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
-              <AccordionTrigger>
-                What should I wear to public skate?
-              </AccordionTrigger>
+              <AccordionTrigger>What should I wear to public skate?</AccordionTrigger>
               <AccordionContent>
                 We recommend wearing comfortable, warm clothing that allows for
                 movement. Long pants are recommended, and layers are ideal as
@@ -347,9 +423,7 @@ export default function App() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
-              <AccordionTrigger>
-                Are skating aids available for beginners?
-              </AccordionTrigger>
+              <AccordionTrigger>Are skating aids available for beginners?</AccordionTrigger>
               <AccordionContent>
                 Yes, we have skating aids available to help beginners learn to
                 skate (limited quantity). These are especially helpful for young
@@ -358,9 +432,7 @@ export default function App() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-4">
-              <AccordionTrigger>
-                Can I book a birthday party or group event?
-              </AccordionTrigger>
+              <AccordionTrigger>Can I book a birthday party or group event?</AccordionTrigger>
               <AccordionContent>
                 Absolutely! We host birthday parties and group event bookings.
                 These include reserved skating time, party room rental, and
