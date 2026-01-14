@@ -74,16 +74,19 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-12">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             <div className="lg:-ml-[30px]">
-              <div className="flex flex-col items-start mb-6">
+              {/* ✅ Center logo + header ONLY on mobile */}
+              <div className="flex flex-col items-center sm:items-start mb-6">
                 <img
                   src={logo}
                   alt="Wings Arena"
-                  className="w-[96.04px] mt-[-15px] mb-2 ml-[72px]"
+                  className="w-[80.04px] mt-[-30px] mb-2 ml-0 mr-3 sm:ml-[72px]"
                 />
-                <h1 className="text-4xl lg:text-5xl text-white">Public Skate</h1>
+                <h1 className="text-4xl lg:text-5xl text-white text-center sm:text-left">
+                  Public Skate
+                </h1>
               </div>
 
-              <div className="text-gray-300 mb-6 space-y-4">
+              <div className="text-gray-300 mb-6 ml-1 space-y-4">
                 <p>
                   Lace up and hit the ice at our Public Skate—the perfect chance
                   to get out on the ice. Whether you're practicing your skills,
