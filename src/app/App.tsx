@@ -327,12 +327,24 @@ export default function App() {
                 >
                   {/* ✅ wrapper applies shadow to PriceCard components */}
                   <div className="grid grid-flow-col items-stretch justify-center gap-x-[var(--pc-gap)] auto-cols-[clamp(132px,56vw,200px)] max-[450px]:auto-cols-[clamp(108px,46vw,150px)] min-[601px]:max-[1000px]:auto-cols-[clamp(220px,35vw,340px)]">
-                    <div className={`h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0 [&>*]:${SHADOW}`}>
-                      <PriceCard title="Admission" price="$14" description="Per person" />
+                    <div
+                      className={`h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0 [&>*]:${SHADOW}`}
+                    >
+                      <PriceCard
+                        title="Admission"
+                        price="$14"
+                        description="Per person"
+                      />
                     </div>
 
-                    <div className={`h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0 [&>*]:${SHADOW}`}>
-                      <PriceCard title="Skate Rental" price="$6" description="Per person" />
+                    <div
+                      className={`h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0 [&>*]:${SHADOW}`}
+                    >
+                      <PriceCard
+                        title="Skate Rental"
+                        price="$6"
+                        description="Per person"
+                      />
                     </div>
                   </div>
                 </div>
@@ -347,12 +359,16 @@ export default function App() {
       {/* Pricing Section - shows here on desktop, hidden on mobile */}
       <section
         id="pricing-desktop"
-        className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-20 lg:-mt-[50px]"
+        className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-20 lg:-mt-[75px]"
       >
         <h2 className="text-[2rem] sm:text-[2.15625rem] mb-1 text-white text-center"></h2>
 
         {/* ✅ wrapper applies shadow to PriceCard components */}
-        <div className={'grid grid-cols-1 sm:grid-cols-2 max-w-[856px] mx-auto gap-8 sm:gap-12 lg:gap-[72px]'}>
+        <div
+          className={
+            "grid grid-cols-1 sm:grid-cols-2 max-w-[856px] mx-auto gap-8 sm:gap-12 lg:gap-[72px]"
+          }
+        >
           <div className={`[&>*]:${SHADOW}`}>
             <PriceCard
               title="Admission"
@@ -378,16 +394,19 @@ export default function App() {
       </section>
 
       {/* Parties & Ice Bookings Section */}
-      <section className="bg-[#0f1340] py-12 pb-4 sm:pb-12 -mt-[30px] sm:mt-0">
+      <section className="bg-[#0f1340] py-8 pb-4 sm:pb-12 -mt-[30px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
           <h2 className="text-[1.5625rem] sm:text-[2.2625rem] mb-0 sm:mb-5 text-white text-center">
             Parties & Ice Bookings
           </h2>
           <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-[#b2dbd7]/50 to-transparent" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 w-[90%] sm:w-full max-w-4xl mx-auto my-15 gap-8 sm:gap-12 lg:gap-[72px]">
+          {/* ✅ UPDATED: wider container ONLY on desktop (lg+) so the two cards get wider */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 w-[90%] sm:w-full max-w-4xl lg:max-w-6xl xl:max-w-[72rem] mx-auto my-10 gap-8 sm:gap-12 lg:gap-[72px]">
             {/* ✅ card shadow */}
-            <div className={`bg-gray-800 rounded-lg border border-gray-700 p-[1.65375rem] text-center ${SHADOW}`}>
+            <div
+              className={`bg-gray-800 rounded-lg border border-gray-700 p-[1.65375rem] text-center ${SHADOW}`}
+            >
               <h3 className="text-white text-[1.378125rem] sm:text-[1.65375rem] mb-4 -mt-[5px]">
                 Birthday Parties
               </h3>
@@ -400,13 +419,15 @@ export default function App() {
                 Learn More
               </a>
 
-              <p className="text-gray-300 text-[0.9646875rem] mt-1 font-bold">
+              <p className="text-gray-300 text-[0.9646875rem] mt-1 font-bold leading-7">
                 For birthday party inquiries email: jwanderlingh@wingsarena.com
               </p>
             </div>
 
             {/* ✅ card shadow */}
-            <div className={`bg-gray-800 rounded-lg border border-gray-700 p-[1.65375rem] text-center ${SHADOW}`}>
+            <div
+              className={`bg-gray-800 rounded-lg border border-gray-700 p-[1.65375rem] text-center ${SHADOW}`}
+            >
               <h3 className="text-white text-[1.378125rem] sm:text-[1.65375rem] mb-4 -mt-[5px]">
                 Private Ice Bookings
               </h3>
@@ -416,16 +437,16 @@ export default function App() {
                 href="https://www.catchcorner.com/facility-page/embedded/rental/wings-arena"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`bg-[#b2dbd7] text-gray-900 px-[1.65375rem] py-[0.826875rem] rounded-md hover:bg-[#9ccbc7] hover:scale-105 transition-all inline-block mt-[2px] ${SHADOW}`}
+                className={`bg-[#b2dbd7] text-gray-900 px-[2.35375rem] py-[0.526875rem] rounded-md hover:bg-[#9ccbc7] hover:scale-105 transition-all inline-block mt-[2px] ${SHADOW}`}
               >
                 {/* ✅ image shadow */}
                 <img
                   src={catchCornerLogo}
                   alt="Book with CatchCorner"
-                  className={`h-[2.0075rem] sm:h-[2.81rem] rounded-md`}
+                  className={`h-[2.075rem] sm:h-[2.81rem] rounded-md`}
                 />
               </a>
-              <p className="text-gray-100 text-[0.9646875rem] mt-4">
+              <p className="text-gray-100 text-[0.9646875rem] mt-4 font-bold">
                 Ice time, on your watch. Book your next skate now!
               </p>
             </div>
