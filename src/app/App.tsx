@@ -68,10 +68,12 @@ export default function App() {
     const on1000Change = () => setIsUnder1000(mq1000.matches);
 
     // Safari fallback support
-    if (mqDesktop.addEventListener) mqDesktop.addEventListener("change", onDesktopChange);
+    if (mqDesktop.addEventListener)
+      mqDesktop.addEventListener("change", onDesktopChange);
     else mqDesktop.addListener(onDesktopChange);
 
-    if (mq1000.addEventListener) mq1000.addEventListener("change", on1000Change);
+    if (mq1000.addEventListener)
+      mq1000.addEventListener("change", on1000Change);
     else mq1000.addListener(on1000Change);
 
     // Initialize
@@ -79,10 +81,12 @@ export default function App() {
     on1000Change();
 
     return () => {
-      if (mqDesktop.removeEventListener) mqDesktop.removeEventListener("change", onDesktopChange);
+      if (mqDesktop.removeEventListener)
+        mqDesktop.removeEventListener("change", onDesktopChange);
       else mqDesktop.removeListener(onDesktopChange);
 
-      if (mq1000.removeEventListener) mq1000.removeEventListener("change", on1000Change);
+      if (mq1000.removeEventListener)
+        mq1000.removeEventListener("change", on1000Change);
       else mq1000.removeListener(on1000Change);
     };
   }, []);
@@ -139,20 +143,26 @@ export default function App() {
       <section className="bg-[#0f1340] border-b border-[#b2dbd7]/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-12">
           <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div className="lg:-ml-[30px]">
+            {/* ✅ Fix overflow ONLY for 1001px–1325px:
+                - remove the negative left margin in that range
+                - add a little right padding to the text column so it breathes
+            */}
+            <div className="lg:-ml-[30px] min-[1001px]:max-[1325px]:ml-0 min-[1001px]:max-[1325px]:pr-3">
               {/* Center logo + header for all breakpoints <= ~1000px */}
               <div className="flex flex-col items-center lg:items-start mb-6">
                 <img
                   src={logo}
                   alt="Wings Arena"
-                  className="w-[80.04px] mt-[-30px] mb-2 ml-0 mr-3 lg:ml-[72px]"
+                  className="w-[80.04px] mt-[-30px] mb-2 ml-0 mr-3 lg:ml-[72px] min-[1001px]:max-[1325px]:ml-[28px]"
                 />
-                <h1 className="text-4xl lg:text-5xl text-white text-center lg:text-left">
+                <h1 className="text-4xl lg:text-5xl text-white text-center lg:text-left min-[1001px]:max-[1325px]:pl-[28px]">
                   Public Skate
                 </h1>
+                <div className="mt-[15px] -mb-[10px] h-px w-full bg-gradient-to-r from-transparent via-[#b2dbd7]/50 to-transparent" />
               </div>
 
-              <div className="text-gray-300 mb-6 ml-1 space-y-4">
+              {/* ✅ Nudge the paragraph + buttons to the right ONLY for 1001–1325 */}
+              <div className="text-gray-300 mb-6 ml-1 space-y-4 min-[1001px]:max-[1325px]:ml-[28px]">
                 <p>
                   Lace up and hit the ice at our Public Skate—the perfect chance
                   to get out on the ice. Whether you're practicing your skills,
@@ -167,7 +177,7 @@ export default function App() {
               </div>
 
               {/* Center buttons for all breakpoints <= ~1000px */}
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start min-[1001px]:max-[1325px]:ml-[28px]">
                 <a
                   href="#schedule"
                   onClick={scrollToId("schedule")}
@@ -185,7 +195,8 @@ export default function App() {
               </div>
             </div>
 
-            <div className="relative h-64 sm:h-80 lg:h-96 ml-[5px]">
+            {/* ✅ Make HeroCarousel a bit smaller ONLY for 1001px–1325px */}
+            <div className="relative h-64 sm:h-80 lg:h-96 ml-[5px] min-[1001px]:max-[1325px]:h-[320px] min-[1001px]:max-[1325px]:ml-0 min-[1001px]:max-[1325px]:scale-[0.93] min-[1001px]:max-[1325px]:origin-top-left">
               <HeroCarousel images={heroImages} interval={3000} />
             </div>
           </div>
@@ -195,47 +206,82 @@ export default function App() {
       {/* Reorder Schedule before Info Boxes ONLY at widths <= 1000px */}
       <div className="max-[1000px]:flex max-[1000px]:flex-col">
         {/* Info Boxes */}
-        <section className="max-w-[calc(80rem*0.97+200px)] mx-auto px-4 sm:px-6 xl:px-8 py-12 max-[1000px]:order-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[calc(1.5rem*1.1356)]">
-            <InfoBox
-              iconImage={familyIcon}
-              title="Great for Families"
-              description="A fun outing for kids, teens, and parents"
-              iconSize="w-[33.6px] h-[33.6px]"
-              iconOffset="-mt-[3px]"
-            />
-            <InfoBox
-              iconImage={allAgesIcon}
-              title="All Ages Welcome"
-              description="Family-friendly environment for everyone"
-              iconSize="w-[44.35px] h-[44.35px]"
-              iconOffset="-mt-[4px]"
-              textOffset="-mt-[5px]"
-            />
-            <InfoBox
-              icon={Snowflake}
-              title="Quality Ice"
-              description="Professionally maintained ice surface"
-            />
-            <InfoBox
-              icon={Cross}
-              title="Safety First"
-              description="Trained staff and safety equipment available"
-            />
+        <section className="max-w-[calc(80rem*0.97+200px)] mx-auto px-0 sm:px-6 xl:px-8 py-8 max-[1000px]:order-2">
+          {/* Full-bleed ONLY on mobile to maximize width for the 2-column grid */}
+          <div className="max-[640px]:w-[100vw] max-[640px]:ml-[calc(50%-50vw)] max-[640px]:px-3 max-[640px]:box-border">
+            <div className="grid w-full grid-cols-2 lg:grid-cols-4 gap-x-[20px] gap-y-[calc(1rem*1.0356)] justify-items-stretch">
+              <div className="w-full [&>*]:!w-full">
+                <InfoBox
+                  iconImage={familyIcon}
+                  title="Great for Families"
+                  description="A fun outing for kids, teens, and parents"
+                  iconSize="w-[28.6px] h-[28.6px]"
+                  iconOffset="-mt-[5px]"
+                  titleClassName="text-[16px] sm:text-[16px]"
+                  descriptionClassName="text-[11px] sm:text-[13px] leading-tight"
+                />
+              </div>
+
+              <div className="w-full [&>*]:!w-full">
+                <InfoBox
+                  iconImage={allAgesIcon}
+                  title="All Ages Welcome"
+                  description="Family-friendly environment for all"
+                  iconSize="w-[35.35px] h-[35.35px]"
+                  iconOffset="-mt-[10px]"
+                  textOffset="-mt-[1.5px]"
+                  titleClassName="text-[15px] sm:text-[16px]"
+                  descriptionClassName="text-[11px] sm:text-[13px] leading-snug"
+                />
+              </div>
+
+              <div className="w-full [&>*]:!w-full">
+                <InfoBox
+                  icon={Snowflake}
+                  title="Quality Ice"
+                  description="Professionally maintained ice surface"
+                  titleClassName="text-[16px] sm:text-[16px]"
+                  descriptionClassName="text-[11px] sm:text-[13px] leading-tight"
+                  iconOffset="-mt-[0px]"
+                  textOffset="-mt-[3.5px]"
+                />
+              </div>
+
+              <div className="w-full [&>*]:!w-full">
+                <InfoBox
+                  icon={Cross}
+                  title="Safety First"
+                  description="Trained staff and safety equipment available"
+                  titleClassName="text-[16px] sm:text-[16px]"
+                  descriptionClassName="text-[11px] sm:text-[13px] leading-tight"
+                  iconOffset="-mt-[6px]"
+                  textOffset="-mt-[3.5px]"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Schedule Section */}
-        <section
-          id="schedule"
-          className="bg-[#0f1340] py-12 max-[1000px]:order-1"
-        >
+        <section id="schedule" className="bg-[#0f1340] py-12 max-[1000px]:order-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
-            <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 sm:gap-8">
-              <div className="lg:col-span-2 lg:-ml-[75px] -mt-[47px] lg:mt-[15px] order-1">
-                <h2 className="text-[1.50125rem] sm:text-3xl mb-5 mt-7 text-white text-center">
+            <div className="flex flex-col gap-6 sm:gap-8 min-[1001px]:items-center">
+              <div
+                className={[
+                  "order-1 w-full",
+                  // <=1000: keep your existing offsets/flow
+                  "max-[1000px]:-mt-[47px] max-[1000px]:mx-0",
+                  // >=1001: center + grow width, and move everything up ~30px
+                  "min-[1001px]:mx-auto",
+                  "min-[1001px]:w-[clamp(760px,72vw,1240px)]",
+                  "min-[1001px]:-mt-[30px]",
+                ].join(" ")}
+              >
+                <h2 className="text-[1.50125rem] sm:text-4xl mb-7 mt-7 min-[1001px]:mb-10 text-white text-center">
                   Upcoming Public Skates
                 </h2>
+                <div className="mb-[20px] -mt-[12px] h-px w-full bg-gradient-to-r from-transparent via-[#b2dbd7]/50 to-transparent" />
+
                 <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 w-full min-w-0 overflow-visible">
                   <ScheduleTable key={scheduleKey} />
                 </div>
@@ -245,68 +291,33 @@ export default function App() {
               <div className="order-2 lg:hidden mt-0">
                 <h2
                   id="pricing-mobile"
-                  className="text-[1.7rem] sm:text-[2.15625rem] mb-4 sm:mb-8 text-white text-center mt-[10px] sm:mt-0"
+                  className="text-[1.7rem] sm:text-[2.15625rem] mb-2 sm:mb-8 text-white text-center mt-[0px] sm:mt-0"
+                ></h2>
+
+                <div
+                  className="flex justify-center w-full"
+                  style={{
+                    ["--pc-w" as any]: "clamp(140px, 56vw, 163px)",
+                    ["--pc-gap" as any]: "clamp(6px, 3vw, 28px)",
+                    ["--pc-title" as any]: "clamp(14px, 2.2vw, 20px)",
+                    ["--pc-price" as any]: "clamp(24px, 4.6vw, 42px)",
+                    ["--pc-desc" as any]: "clamp(12px, 1.8vw, 14px)",
+                    ["--pc-feat" as any]: "clamp(12px, 1.7vw, 14px)",
+                  }}
                 >
-                  Pricing
-                </h2>
+                  <div className="grid grid-flow-col items-stretch justify-center gap-x-[var(--pc-gap)] auto-cols-[clamp(132px,56vw,200px)] max-[450px]:auto-cols-[clamp(108px,46vw,150px)] min-[601px]:max-[1000px]:auto-cols-[clamp(220px,35vw,340px)]">
+                    <div className="h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0">
+                      <PriceCard title="Admission" price="$14" description="Per person" />
+                    </div>
 
-                {/* Mobile: make both cards equal height by forcing the grid items to stretch */}
-                <div className="-ml-[0px] grid w-fit grid-cols-[160px_160px] gap-x-[12px] items-stretch">
-                  {/* Wrapper stretches to row height; inner card fills wrapper */}
-                  <div className="h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0">
-                    <PriceCard
-                      title="Admission"
-                      price="$14"
-                      description="Per person"
-                      features={["Walk-ins welcome", "Session length varies by date"]}
-                    />
-                  </div>
-
-                  <div className="h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0">
-                    <PriceCard
-                      title="Skate Rental"
-                      price="$6"
-                      description="Per person"
-                      features={[
-                        "Hockey & Figure Skates",
-                        "Youth & Adult Sizes",
-                        "Exchange sizes anytime",
-                      ]}
-                    />
+                    <div className="h-full flex [&>*]:h-full [&>*]:w-full [&>*]:mx-0">
+                      <PriceCard title="Skate Rental" price="$6" description="Per person" />
+                    </div>
                   </div>
                 </div>
               </div>
 
-
-
-
-
-              {/* <div className="space-y-[23px] sm:space-y-[26px] lg:mt-14 lg:ml-[50px] lg:w-[calc(100%-5px)] mt-[40px] lg:-mt-[25px] w-[85%] mx-auto lg:mx-0 lg:w-[calc(100%-5px)] order-3">
-                <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-3.75">
-                  <h3 className="text-white mb-2 text-center lg:text-left">
-                    Skate Rentals
-                  </h3>
-                  <p className="text-gray-300 text-sm text-center lg:text-left">
-                    Hockey & figure skates in youth and adult sizes
-                  </p>
-                </div>
-                <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-6.25">
-                  <h3 className="text-white mb-2 text-center lg:text-left">
-                    Spectator Seating
-                  </h3>
-                  <p className="text-gray-300 text-sm text-center lg:text-left">
-                    Ample space for parents and guests to watch
-                  </p>
-                </div>
-                <div className="bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 lg:mt-[30px]">
-                  <h3 className="text-white mb-2 text-center lg:text-left">
-                    Helmets Recommended
-                  </h3>
-                  <p className="text-gray-300 text-sm text-center lg:text-left">
-                    Especially for kids and first-time skaters
-                  </p>
-                </div>
-              </div> */}
+              {/* (cards section commented out in your original) */}
             </div>
           </div>
         </section>
@@ -315,20 +326,15 @@ export default function App() {
       {/* Pricing Section - shows here on desktop, hidden on mobile */}
       <section
         id="pricing-desktop"
-        className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-12 lg:-mt-[10px]"
+        className="hidden lg:block max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-12 lg:-mt-[50px]"
       >
-        <h2 className="text-[2rem] sm:text-[2.15625rem] mb-8 text-white text-center">
-          Pricing
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 max-w-[1056px] mx-auto gap-8 sm:gap-12 lg:gap-[72px]">
+        <h2 className="text-[2rem] sm:text-[2.15625rem] mb-8 text-white text-center"></h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 max-w-[856px] mx-auto gap-8 sm:gap-12 lg:gap-[72px]">
           <PriceCard
             title="Admission"
             price="$14"
             description="Per person"
-            features={[
-              "Walk-ins welcome",
-              "Session length varies by date",
-            ]}
+            features={["Walk-ins welcome", "Session length varies by date"]}
           />
           <PriceCard
             title="Skate Rental"

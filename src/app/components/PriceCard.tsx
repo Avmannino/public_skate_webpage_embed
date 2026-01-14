@@ -1,24 +1,68 @@
-interface PriceCardProps {
+type PriceCardProps = {
   title: string;
   price: string;
-  description: string;
-  features: string[];
-}
+  description?: string;
+  features?: string[];
+  className?: string;
+};
 
-export function PriceCard({ title, price, description, features }: PriceCardProps) {
+export function PriceCard({
+  title,
+  price,
+  description,
+  features = [],
+  className = "",
+}: PriceCardProps) {
+  const isAdmission = title.trim().toLowerCase() === "admission";
+
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 sm:p-8 w-[85%] sm:w-full mx-auto sm:mx-0">
-      <h3 className="text-white mb-3 text-lg sm:text-xl text-center sm:text-left">{title}</h3>
-      <div className="text-3xl sm:text-4xl mb-3 text-white text-center sm:text-left">{price}</div>
-      <p className="text-gray-300 text-sm sm:text-base mb-6 text-center sm:text-left">{description}</p>
-      <ul className="space-y-3">
-        {features.map((feature, index) => (
-          <li key={index} className="text-sm sm:text-base text-gray-300 flex items-start justify-center sm:justify-start">
-            <span className="text-gray-500 mr-2">•</span>
-            {feature}
-          </li>
-        ))}
-      </ul>
+    <div
+      className={`bg-gray-800 rounded-lg border border-gray-700 p-6 h-full ${className}`}
+    >
+      {/* Default: desktop (>=1001px) left-aligned */}
+      <div className="flex flex-col items-start text-left h-full">
+        {/* ✅ Nudge ONLY the Admission "top block" up slightly so it matches Skate Rental */}
+        <div
+          className={[
+            "w-full",
+            "max-[600px]:text-center",
+            "min-[601px]:max-[1000px]:text-center",
+            isAdmission ? "-mt-[1px]" : "",
+          ].join(" ")}
+        >
+          {/* ✅ Make BOTH titles match size at <=450px */}
+          <h3 className="text-white text-xl sm:text-2xl font-semibold max-[450px]:text-[17.5px]">
+            {title}
+          </h3>
+
+          <div className="mt-3">
+            <div className="text-white text-4xl sm:text-4xl font-bold leading-none">
+              {price}
+            </div>
+            {description ? (
+              <div className="text-gray-300 text-sm mt-2">{description}</div>
+            ) : null}
+          </div>
+        </div>
+
+        {features.length > 0 ? (
+          <ul
+            className={[
+              "mt-6 space-y-3 text-gray-200 text-sm list-disc list-inside",
+              "min-[601px]:max-[1000px]:text-center",
+              "min-[601px]:max-[1000px]:list-inside",
+            ].join(" ")}
+          >
+            {features.map((feature, idx) => (
+              <li key={idx} className="leading-relaxed">
+                {feature}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        <div className="mt-auto" />
+      </div>
     </div>
   );
 }
