@@ -36,7 +36,7 @@ export function PriceCard({
             className={[
               "text-white font-semibold",
               isSkateRental
-                ? "text-lg sm:text-xl max-[450px]:text-[17.4px]"
+                ? "text-lg sm:text-xl max-[450px]:text-[17px]"
                 : "text-xl sm:text-2xl max-[450px]:text-[17.5px]",
             ].join(" ")}
           >
