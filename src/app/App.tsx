@@ -153,7 +153,7 @@ export default function App() {
                 <img
                   src={logo}
                   alt="Wings Arena"
-                  className="w-[80.04px] mt-[-30px] mb-2 ml-0 mr-3 lg:ml-[72px] min-[1001px]:max-[1325px]:ml-[28px]"
+                  className="w-[100.04px] mt-[-50px] -mb-[15px] ml-3 mr-3 lg:ml-[0px] min-[1001px]:max-[1325px]:ml-[28px]"
                 />
                 <h1 className="text-4xl lg:text-5xl text-white text-center lg:text-left min-[1001px]:max-[1325px]:pl-[28px]">
                   Public Skate
@@ -206,7 +206,7 @@ export default function App() {
       {/* Reorder Schedule before Info Boxes ONLY at widths <= 1000px */}
       <div className="max-[1000px]:flex max-[1000px]:flex-col">
         {/* Info Boxes */}
-        <section className="max-w-[calc(80rem*0.97+200px)] mx-auto px-0 sm:px-6 xl:px-8 py-8 max-[1000px]:order-2">
+        <section className="max-w-[calc(80rem*0.97+200px)] mx-auto px-0 sm:px-6 xl:px-8 py-8 max-[1000px]:order-2 max-[1000px]:pt-0 max-[1000px]:-mt-[18px]">
           {/* Full-bleed ONLY on mobile to maximize width for the 2-column grid */}
           <div className="max-[640px]:w-[100vw] max-[640px]:ml-[calc(50%-50vw)] max-[640px]:px-3 max-[640px]:box-border">
             <div className="grid w-full grid-cols-2 lg:grid-cols-4 gap-x-[20px] gap-y-[calc(1rem*1.0356)] justify-items-stretch">
