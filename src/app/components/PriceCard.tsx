@@ -14,6 +14,7 @@ export function PriceCard({
   className = "",
 }: PriceCardProps) {
   const isAdmission = title.trim().toLowerCase() === "admission";
+  const isSkateRental = title.trim().toLowerCase() === "skate rental";
 
   return (
     <div
@@ -30,8 +31,15 @@ export function PriceCard({
             isAdmission ? "-mt-[1px]" : "",
           ].join(" ")}
         >
-          {/* ✅ Make BOTH titles match size at <=450px */}
-          <h3 className="text-white text-xl sm:text-2xl font-semibold max-[450px]:text-[17.5px]">
+          {/* ✅ Lower ONLY "Skate Rental" title font size */}
+          <h3
+            className={[
+              "text-white font-semibold",
+              isSkateRental
+                ? "text-lg sm:text-xl max-[450px]:text-[17.4px]"
+                : "text-xl sm:text-2xl max-[450px]:text-[17.5px]",
+            ].join(" ")}
+          >
             {title}
           </h3>
 

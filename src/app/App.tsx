@@ -394,7 +394,7 @@ export default function App() {
       </section>
 
       {/* Parties & Ice Bookings Section */}
-      <section className="bg-[#0f1340] py-8 pb-4 sm:pb-12 -mt-[30px]">
+      <section className="bg-[#0f1340] py-8 pb-4 sm:pb-12 -mt-[25px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8">
           <h2 className="text-[1.5625rem] sm:text-[2.2625rem] mb-0 sm:mb-5 text-white text-center">
             Parties & Ice Bookings
@@ -402,7 +402,7 @@ export default function App() {
           <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-[#b2dbd7]/50 to-transparent" />
 
           {/* ✅ UPDATED: wider container ONLY on desktop (lg+) so the two cards get wider */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 w-[90%] sm:w-full max-w-4xl lg:max-w-6xl xl:max-w-[72rem] mx-auto my-10 gap-8 sm:gap-12 lg:gap-[72px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 w-[90%] sm:w-full max-w-4xl lg:max-w-6xl xl:max-w-[72rem] mx-auto my-8 gap-8 sm:gap-12 lg:gap-[72px]">
             {/* ✅ card shadow */}
             <div
               className={`bg-gray-800 rounded-lg border border-gray-700 p-[1.65375rem] text-center ${SHADOW}`}
@@ -456,7 +456,7 @@ export default function App() {
 
       {/* Gallery Section */}
       {/* ✅ Guaranteed move up 20px: use translate instead of relying on margins */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 xl:px-8 py-12 -mt-[60px] sm:mt-0 order-2 sm:order-none -translate-y-[20px]">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 xl:px-8 py-18 -mt-[60px] sm:mt-0 order-2 sm:order-none -translate-y-[20px]">
         <h2 className="text-2xl sm:text-4xl mb-6 sm:mb-6 text-white text-center">
           Gallery
         </h2>
