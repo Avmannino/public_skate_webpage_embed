@@ -1,9 +1,30 @@
 // src/services/googleCalendar.ts
 
-const CALENDAR_ID = import.meta.env.VITE_GOOGLE_CALENDAR_ID as string | undefined;
-const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY as string | undefined;
+const ENV_CALENDAR_ID = import.meta.env.VITE_GOOGLE_CALENDAR_ID as
+  | string
+  | undefined;
+
+const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY as
+  | string
+  | undefined;
+
+// Fallback to your Public Skate calendar if env is missing
+const FALLBACK_CALENDAR_ID =
+  "8cdb8282e8d925234951e11b5002f474b68c876106fe54d8f8ec04c273566bab@group.calendar.google.com";
+
+const CALENDAR_ID = (ENV_CALENDAR_ID || FALLBACK_CALENDAR_ID).trim();
 
 const TZ = "America/New_York";
+
+/**
+ * ✅ Only show Public Skate events.
+ * Add/remove keywords as needed to match your naming in Google Calendar.
+ */
+const PUBLIC_SKATE_KEYWORDS = [
+  "public skate",
+  "public skating",
+  "public skates",
+];
 
 export interface CalendarEvent {
   day: string;
@@ -61,22 +82,32 @@ function getDayOfWeek(dateString: string): string {
   });
 }
 
+function matchesPublicSkate(summary?: string): boolean {
+  const s = (summary ?? "").toLowerCase().trim();
+  if (!s) return false;
+  return PUBLIC_SKATE_KEYWORDS.some((k) => s.includes(k));
+}
+
 export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
-  // If not configured, populate nothing
-  if (!CALENDAR_ID || !API_KEY) {
+  if (!API_KEY) {
     console.error(
-      "[Calendar] Missing env vars. Set VITE_GOOGLE_CALENDAR_ID and VITE_GOOGLE_CALENDAR_API_KEY."
+      "[Calendar] Missing env var: VITE_GOOGLE_CALENDAR_API_KEY."
     );
+    return [];
+  }
+
+  if (!CALENDAR_ID) {
+    console.error("[Calendar] Missing calendar id.");
     return [];
   }
 
   try {
     const now = new Date();
-    const weekFromNow = new Date(now);
-    weekFromNow.setDate(now.getDate() + 7);
+    const daysFromNow = new Date(now);
+    daysFromNow.setDate(now.getDate() + 30);
 
     const timeMin = now.toISOString();
-    const timeMax = weekFromNow.toISOString();
+    const timeMax = daysFromNow.toISOString();
 
     const params = new URLSearchParams({
       key: API_KEY,
@@ -84,7 +115,7 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
       timeMax,
       singleEvents: "true",
       orderBy: "startTime",
-      maxResults: "50",
+      maxResults: "100",
       timeZone: TZ,
       fields: "items(status,summary,start(dateTime,date),end(dateTime,date))",
     });
@@ -106,12 +137,13 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
         // ignore
       }
 
-      console.error(
-        "[Calendar] Google Calendar API failed:",
-        response.status,
-        response.statusText
-      );
-      console.error("[Calendar] Error message:", message);
+      console.error("[Calendar] Google Calendar API failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        message,
+        calendarId: CALENDAR_ID,
+      });
+
       return [];
     }
 
@@ -121,6 +153,8 @@ export async function fetchCalendarEvents(): Promise<CalendarEvent[]> {
 
     const events: CalendarEvent[] = items
       .filter((item) => item.status !== "cancelled")
+      // ✅ FILTER OUT NON–PUBLIC SKATE EVENTS
+      .filter((item) => matchesPublicSkate(item.summary))
       .map((item) => {
         const allDay = isAllDay(item);
 
