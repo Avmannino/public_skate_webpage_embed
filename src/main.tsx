@@ -4,15 +4,13 @@ import "./styles/index.css";
 
 createRoot(document.getElementById("root")!).render(<App />);
 
-// ---- Send the page height to the parent (Wix) so it can resize the iframe ----
-// We intentionally use "*" because Wix preview/live origins vary.
-// Your Wix embed script already validates event.origin === "https://avmannino.github.io".
 function sendEmbedHeight() {
   const height = Math.max(
     document.documentElement.scrollHeight,
     document.body.scrollHeight
   );
 
+  // This is what Wix HTML elements listen for via onMessage(...)
   window.parent?.postMessage({ type: "WINGS_EMBED_HEIGHT", height }, "*");
 }
 
