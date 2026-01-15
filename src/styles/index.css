@@ -2,16 +2,14 @@
 @import './tailwind.css';
 @import './theme.css';
 
+/* ✅ Ensure no internal scrolling inside the iframe document */
 html,
 body {
-  height: 100%;
   margin: 0;
-  overflow: hidden;
+  background: #0f1340; /* prevents white halo */
 }
 
+/* ✅ Let the page grow naturally so Wix can size the iframe correctly */
 #root {
-  height: 100%;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
+  background: #0f1340;
 }
-
