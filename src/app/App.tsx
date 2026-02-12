@@ -413,7 +413,7 @@ export default function App() {
 
               {/* ✅ button shadow */}
               <a
-                href="https://www.wingsarena.com/events"
+                href="https://www.wingsarena.com/party-inquiries"
                 className={`bg-[#2c3f5d] text-gray-200 px-[3.85375rem] py-[1.126875rem] rounded-md hover:bg-[#9ccbc7] hover:scale-105 transition-all inline-block mb-4 font-bold ${SHADOW}`}
               >
                 Learn More
