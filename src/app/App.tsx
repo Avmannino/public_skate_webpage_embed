@@ -411,9 +411,11 @@ export default function App() {
                 Birthday Parties
               </h3>
 
-              {/* ✅ button shadow */}
+              {/* ✅ UPDATED: open in a new tab/window */}
               <a
                 href="https://www.wingsarena.com/party-inquiries"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`bg-[#2c3f5d] text-gray-200 px-[3.85375rem] py-[1.126875rem] rounded-md hover:bg-[#9ccbc7] hover:scale-105 transition-all inline-block mb-4 font-bold ${SHADOW}`}
               >
                 Learn More
@@ -484,7 +486,9 @@ export default function App() {
             className={`bg-[#b2dbd7] rounded-lg border border-gray-700 px-4 sm:px-6 ${SHADOW}`}
           >
             <AccordionItem value="item-1">
-              <AccordionTrigger>Do I need to bring my own skates?</AccordionTrigger>
+              <AccordionTrigger>
+                Do I need to bring my own skates?
+              </AccordionTrigger>
               <AccordionContent>
                 No, skate rentals are available for a small fee. We have sizes
                 for all ages, from toddlers to adults. However, you're welcome
@@ -492,7 +496,9 @@ export default function App() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
-              <AccordionTrigger>What should I wear to public skate?</AccordionTrigger>
+              <AccordionTrigger>
+                What should I wear to public skate?
+              </AccordionTrigger>
               <AccordionContent>
                 We recommend wearing comfortable, warm clothing that allows for
                 movement. Long pants are recommended, and layers are ideal as
@@ -501,7 +507,9 @@ export default function App() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
-              <AccordionTrigger>Are skating aids available for beginners?</AccordionTrigger>
+              <AccordionTrigger>
+                Are skating aids available for beginners?
+              </AccordionTrigger>
               <AccordionContent>
                 Yes, we have skating aids available to help beginners learn to
                 skate (limited quantity). These are especially helpful for young
@@ -510,7 +518,9 @@ export default function App() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-4">
-              <AccordionTrigger>Can I book a birthday party or group event?</AccordionTrigger>
+              <AccordionTrigger>
+                Can I book a birthday party or group event?
+              </AccordionTrigger>
               <AccordionContent>
                 Absolutely! We host birthday parties and group event bookings.
                 These include reserved skating time, party room rental, and
